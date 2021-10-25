@@ -1,31 +1,68 @@
-//string handling inside of a DOM call
-const movieList = document.getElementById('movie-list');
-movieList.style['background-color'] = 'red'; // movieList.style.backgroundColor = 'blue'; 
-movieList.style.display = 'block';
+const addMovieButton = document.querySelector("#add-movie-btn");
+const searchMovieButton = document.querySelector("#search-btn");
+const movies = [];
 
-const person = {
-  "the genre": ["male", "female"],  //key values can have a string in their name
-  name: "Christopher",
-  age: 27,
-  hobbies: ["football", "movies", "eating"],
-  greet: () => {
-    console.log(
-      `Hi my name is ${person.name}, I'm ${person.age} and I like to ${person.hobbies}`
-    );
-  },
-  11.5: 'Hello',
+const renderMovies = (filter = '') => {
+  const movieList = document.querySelector("#movie-list");
+  if (movies.lenght === 0) {
+    movieList.classList.remove("visible");
+  } else {
+    movieList.classList.add("visible");
+  }
+  movieList.innerHTML = "";
+
+  const filterMovies = !filter
+    ? movies
+    : movies.filter((movie) => movie.info.title.includes(filter));
+
+  filterMovies.forEach((movie) => {
+    const movieEl = document.createElement("li");
+    // if(movie.info === undefined) {  // //this is to check if inside of an object the movie.info is empty then do something. 
+    // }
+    const { info, ...otherProps } = movie; //object destructuring
+    console.log(otherProps);
+    const { title: movieTitle } = info; //object destructuring
+    let {getFormattedTitle} = movie;
+    // getFormattedTitle = getFormattedTitle.bind(movie); // binding "movie" to the .this method.
+    let text = getFormattedTitle.call(movie) + " - "; //call(), or apply();
+    for (const key in info) {
+      if (key !== "title") {
+        text = text + `${key}: ${info[key]}`;
+      }
+    }
+    movieEl.textContent = text;
+    movieList.append(movieEl);
+  });
 };
 
+const addMovieHandler = () => {
+  const title = document.querySelector("#title").value;
+  const extraName = document.querySelector("#extra-name").value;
+  const extraValue = document.querySelector("#extra-value").value;
 
+  if (
+    title.trim() === "" ||
+    extraName.trim() === "" ||
+    extraValue.trim() === ""
+  ) {
+    return;
+  }
 
-// 1 -> adding a new value to the person's Object
-person.isAdmin = true; 
-// 2 -> delete a value in the person's object
-delete person.age; 
-// 3 -> getting a object key passed as 'string' (keys can be string)
-console.log(`my genre is: ${person['the genre'][0]}`);
-console.log(person[11.5]);
-console.log(person);
+  const newMovie = {
+    info: { title, [extraName]: extraValue },
+    id: Math.random(),
+    getFormattedTitle() {
+      return this.info.title.toUpperCase();
+    }
+  };
+  movies.push(newMovie);
+  renderMovies();
+};
 
+const searchMovieHandler = () => {
+  const filterTerm = document.querySelector("#filter-title").value;
+  renderMovies(filterTerm);
+};
 
-// how to enter a value inside of an array inside of an object
+addMovieButton.addEventListener("click", addMovieHandler);
+searchMovieButton.addEventListener("click", searchMovieHandler);

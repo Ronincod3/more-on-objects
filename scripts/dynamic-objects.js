@@ -18,7 +18,6 @@ let person1 = {
 
 
 const allocateDynamic = () => {
-  const person = person1;
   const key = chosenValueOfKeyName;
   const keyValue = chosenKeyNameValue;
   person1[key] = person1[userChosenKeyName];
